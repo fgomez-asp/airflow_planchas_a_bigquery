@@ -1,0 +1,42 @@
+{
+  "cero_postgres": {
+    "conn_type": "postgres",
+    "description": "Conexi\u00f3n para realizar consultas a la base de datos `cero`.",
+    "login": "",
+    "password": "",
+    "host": "pg-cero.integraopciones.mx",
+    "port": 5432,
+    "schema": "cero",
+    "extra": null
+  },
+  "google_cloud_default": {
+    "conn_type": "google_cloud_platform",
+    "description": "Conexi\u00f3n a Google Cloud para acceder al proyecto `data-warehouse-412715` y ejecutar procesos sobre BigQuery.",
+    "login": null,
+    "password": null,
+    "host": null,
+    "port": null,
+    "schema": null,
+    "extra": ""
+  },
+  "procrea_postgres": {
+    "conn_type": "postgres",
+    "description": "Conexi\u00f3n para realizar consultas a la base de datos `procrea`.",
+    "login": "",
+    "password": "",
+    "host": "172.17.8.66",
+    "port": 5432,
+    "schema": "procrea",
+    "extra": null
+  },
+  "reportesfl_postgres": {
+    "conn_type": "postgres",
+    "description": "Conexi\u00f3n para realizar consultas a la base de datos `reportesfl`.",
+    "login": "",
+    "password": "",
+    "host": "172.17.8.18",
+    "port": 5432,
+    "schema": "reportesfl",
+    "extra": null
+  }
+}

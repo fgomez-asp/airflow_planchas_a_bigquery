@@ -1,0 +1,339 @@
+{
+    "BQ_TABLE_PART1": {
+        "description": "Es una tabla temporal que almacena el resultado la query del archivo consulta_cero.sql.  Se usa para la generacion de la PlanchaSaldosCero\n\nLa estructura es: dataset.nombre_tabla",
+        "value": "dwh_cero.planchaSaldosCero_P1"
+    },
+    "CONFIGURACION_DWH": {
+        "CERO": {
+            "bq_dataset_id": "dwh_cero",
+            "bq_project_id": "data-warehouse-412715",
+            "esquemas": {
+                "credito": {
+                    "crcreditos": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 5,
+                        "modo": "actualizar",
+                        "pk": "id",
+                        "subir": true
+                    },
+                    "crdatos_disposiciones": {
+                        "modo": "actualizar_query",
+                        "pk": "id",
+                        "query": "SELECT cdd.* FROM credito.crdatos_disposiciones cdd INNER JOIN nucleocentral.ncconceptos nc ON cdd.conceptos_id = nc.id WHERE nc.clave = 'CRE_DIS_FEC_LIQ' AND EXISTS (SELECT 1 FROM credito.crcreditos cr JOIN credito.crdisposiciones cd ON cr.id = cd.credito_id WHERE cr.id = cdd.credito_id AND cd.no_disposicion = cdd.no_disposicion AND cr.estatus_cartera_id = 2 AND cr.validado = 3 AND cr.revisado = 3 AND CAST(cd.fecha_creacion AS DATE) < DATE '2025-05-13');",
+                        "subir": true
+                    },
+                    "crdisposiciones": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_creacion",
+                        "dias_delta": 5,
+                        "modo": "actualizar",
+                        "pk": "id",
+                        "subir": true
+                    },
+                    "crestatus_disposiciones": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "crsaldo_cartera_actual": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                },
+                "informacion_financiera": {
+                    "ifconf_bolsa_semanal": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                },
+                "nucleocentral": {
+                    "ncconceptos": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "ncsucursal": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                },
+                "productos": {
+                    "prproductos": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                },
+                "seguridad": {
+                    "secanal": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                },
+                "sic": {
+                    "cat_resultado": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "consultas_solicitante": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                },
+                "solicitud": {
+                    "sosolicitudes": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                }
+            },
+            "gcp_conn_id": "google_cloud_default",
+            "gcs_bucket": "dwh_datos_bucket",
+            "pg_conn_id": "cero_postgres"
+        },
+        "PROCREA": {
+            "bq_dataset_id": "ds_procrea",
+            "bq_project_id": "data-warehouse-412715",
+            "esquemas": {
+                "public": {
+                    "cat_buckets": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "cat_buckets_empleados": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "cat_conceptos": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "cat_cred_etiq": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "cat_modulos": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "cat_resultado": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "cat_zonas": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "cheques": {
+                        "modo": "actualizar_query",
+                        "pk": "cheques_id",
+                        "query": "select * from cheques where (estatus='E' or tipo_trans = 'S') and tipo='C';",
+                        "subir": true
+                    },
+                    "colonia": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "conceptos_creditos": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 5,
+                        "modo": "actualizar",
+                        "pk": "id",
+                        "subir": true
+                    },
+                    "contrato": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "control",
+                        "subir": true
+                    },
+                    "credito": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "control",
+                        "subir": true
+                    },
+                    "datos_credito": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "control",
+                        "subir": true
+                    },
+                    "dias_vencido": {
+                        "modo": "truncar_query",
+                        "query": "select * FROM dias_vencido WHERE calificacion IS NOT NULL AND diasvenc IS NOT null and fecha_creacion >= '2026-04-01';",
+                        "subir": true
+                    },
+                    "empleado": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "num_empleado",
+                        "subir": true
+                    },
+                    "empleados": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "herramientas_cobranza": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "localidades": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "ministra": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 5,
+                        "modo": "actualizar",
+                        "pk": "ministra_id",
+                        "subir": true
+                    },
+                    "pagos": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "sec",
+                        "subir": true
+                    },
+                    "prcat_tipocred": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "puestos": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "id",
+                        "subir": true
+                    },
+                    "region_zona_com": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "regiones": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "solicitante": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "numero",
+                        "subir": true
+                    },
+                    "solicitud_referencias": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_modificacion",
+                        "dias_delta": 5,
+                        "modo": "actualizar",
+                        "pk": "solicitud_referencias_id",
+                        "subir": true
+                    },
+                    "solicitudes": {
+                        "modo": "truncar",
+                        "subir": true
+                    },
+                    "zona_comercial": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                }
+            },
+            "gcp_conn_id": "google_cloud_default",
+            "gcs_bucket": "dwh_datos_bucket",
+            "pg_conn_id": "procrea_postgres"
+        },
+        "REPORTESFL": {
+            "bq_dataset_id": "dwh_reportefl",
+            "bq_project_id": "data-warehouse-412715",
+            "esquemas": {
+                "informacion_financiera": {
+                    "ifhistorico_ingresos_contencion": {
+                        "columna_creacion": "fecha_creacion",
+                        "columna_modificacion": "fecha_creacion",
+                        "dias_delta": 2,
+                        "modo": "actualizar",
+                        "pk": "id",
+                        "subir": true
+                    }
+                },
+                "public": {
+                    "fl_reporte_saldos_desglosado": {
+                        "modo": "truncar_query",
+                        "query": "select * FROM fl_reporte_saldos_desglosado fl WHERE fl.fecha_corte>='2026-05-13'; ",
+                        "subir": true
+                    },
+                    "fl_reporte_saldos_desglosado_mensual": {
+                        "modo": "truncar",
+                        "subir": true
+                    }
+                }
+            },
+            "gcp_conn_id": "google_cloud_default",
+            "gcs_bucket": "dwh_datos_bucket",
+            "pg_conn_id": "reportesfl_postgres"
+        }
+    },
+    "GCP_CONN_ID": {
+        "description": "Nombre de la conexi\u00f3n de Airflow de Google Cloud que se usar\u00e1 en la generaci\u00f3n de planchas. ",
+        "value": "google_cloud_default"
+    },
+    "GCP_PROJECT_ID": {
+        "description": "Nombre del proyecto de Google Cloud sobre el que se har\u00e1n las transformaciones y consultas de datos.",
+        "value": "data-warehouse-412715"
+    },
+    "PG_CERO_CONN_ID": {
+        "description": "Nombre de la conexi\u00f3n de Airflow para conectarse a la base de datos CERO",
+        "value": "cero_postgres"
+    },
+    "congelaDatosSaldos_Variables": {},
+    "generaDatosClave_Variables": {
+        "description": "Configuraci\u00f3n de metadatos, mapeo de tablas de BigQuery y banderas de control para el procesamiento de datos clave de empleados y bolsas.",
+        "value": {
+            "flags": {
+                "executeActualizaEmpleadosBucket": "true",
+                "executeBolsaSemanal": "true"
+            },
+            "params": {
+                "puestoAsesor": [
+                    145,
+                    158
+                ]
+            },
+            "project_id": "data-warehouse-412715",
+            "tablas": {
+                "cat_buckets_empleados_PROCREA": "ds_procrea.cat_buckets_empleados",
+                "cat_buckets_empleados_PROCREA_EXTRA": "dwh_procrea_extrajudicial.cat_buckets_empleados",
+                "empleado": "ds_procrea.empleado",
+                "ifbolsa_semanal": "dwh_cero.ifbolsa_semanal",
+                "ifbolsa_semanal_historico": "dwh_cero.ifbolsa_semanal_historico",
+                "puestos": "ds_procrea.puestos",
+                "sp_upsert_buckets": "ds_procrea.sp_actualizar_buckets_empleados"
+            }
+        }
+    },
+    "generaDatosSaldosBucket_Variables": {
+        "description": "Configuraci\u00f3n t\u00e9cnica del proyecto y mapeo de tablas de referencia para la extracci\u00f3n de regiones y cat\u00e1logos de buckets.",
+        "value": {
+            "flags": {},
+            "params": {},
+            "project_id": "data-warehouse-412715",
+            "tablas": {
+                "cat_buckets": "ds_procrea.cat_buckets",
+                "regiones": "dwh_consolidado.Pr_regiones"
+            }
+        }
+    }
+}

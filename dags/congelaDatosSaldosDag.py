@@ -5,6 +5,9 @@ from include.common.bigQuery import ejecutar_query_bq
 from airflow.operators import EmptyOperator
 from include.common.parameters_converter import build_dag_parameters
 
+dag_docs = """
+"""
+
 
 @dag(
     dag_id="CongelaDatosSaldos_Dag",

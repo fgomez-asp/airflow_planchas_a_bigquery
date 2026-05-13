@@ -6,6 +6,20 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from google.cloud import bigquery
 from include.common.bigQuery import inferir_y_crear_esquema_bq, sanitize_df
+from pathlib import Path
+
+# Configuración de rutas para SQL y Documentación
+BASE_PATH = Path(__file__).parent
+SQL_PATH = BASE_PATH / "include" / "dominio_generacionDatosClave" / "sql"
+
+
+def get_dag_docs():
+    """Lee la documentación del DAG desde un archivo externo .md."""
+    path_docs = BASE_PATH / "docs" / "GeneracionPlanchaSaldosCero_Dag.md"
+    try:
+        return path_docs.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return "# Documentación .md no encontrada"
 
 
 @dag(
@@ -13,13 +27,27 @@ from include.common.bigQuery import inferir_y_crear_esquema_bq, sanitize_df
     schedule=None,
     start_date=datetime(2024, 1, 1),
     catchup=False,
+    doc_md=get_dag_docs(),  # Función asumiendo estructura anterior
     tags=["ingesta", "custom", "pandas", "bigquery"],
     default_args={"retries": 1},
 )
 def ingesta_custom_pandas_dag():
+    """
+    ### DAG de Ingesta Customizada (Postgres -> BigQuery)
+    Este proceso gestiona la extracción de datos desde el sistema Cero hacia BigQuery.
+    Utiliza Pandas para la manipulación intermedia y sanitización de tipos de datos,
+    garantizando la integridad del esquema en el Data Warehouse.
+    """
 
     @task
     def validar_y_crear_esquema(**context):
+        """
+        ### Task: Validar y Crear Esquema
+        1. Localiza el archivo SQL de consulta en el sistema de archivos.
+        2. Analiza el nombre de la tabla destino (Dataset + Tabla).
+        3. Invoca la utilidad `inferir_y_crear_esquema_bq` para sincronizar
+           el esquema de Postgres con BigQuery antes de la carga.
+        """
 
         config = context["dag_run"].conf
 
@@ -52,6 +80,14 @@ def ingesta_custom_pandas_dag():
         retry_delay=timedelta(minutes=1),
     )
     def extraccion_y_carga_manual(config: dict, ds: str):
+        """
+        ### Task: Extracción y Carga Manual
+        Realiza el movimiento de datos entre nubes:
+        - **Lectura**: Ejecuta SQL en Postgres y carga el resultado en un DataFrame.
+        - **Sanitización**: Limpia el DataFrame contra el esquema oficial de BigQuery.
+        - **Carga**: Sube los datos optimizados mediante el formato Parquet en memoria.
+        """
+
         print("Iniciando proceso de extracción manual...")
 
         # 1. Leer y formatear el archivo SQL
@@ -107,24 +143,16 @@ def ingesta_custom_pandas_dag():
 
     @task
     def ejecutar_procedure(config: dict):
-
+        """
+        ### Task: Ejecutar Procedimiento Almacenado
+        Invoca el Stored Procedure `generar_planchassaldostmp` en BigQuery.
+        Este SP es el encargado de procesar la tabla cruda P1 y convertirla
+        en la plancha final de Saldos Cero.
+        """
         bq_hook = BigQueryHook(gcp_conn_id=config["gcp_conn_id"], use_legacy_sql=False)
         client = bq_hook.get_client()
 
         query = "CALL `data-warehouse-412715.dwh_cero.generar_planchassaldostmp`();"
-
-        job = client.query(query)
-        job.result()
-
-        return
-
-    @task
-    def ejecutar_procedure_fl(config: dict):
-
-        bq_hook = BigQueryHook(gcp_conn_id=config["gcp_conn_id"], use_legacy_sql=False)
-        client = bq_hook.get_client()
-
-        query = "CALL `data-warehouse-412715.ds_procrea.congela_datos_saldos_bucket_p1_v1`( ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51'], '2026-04-01',  '2026-04-30', '2026-04-29', '2026-04-27', '2026-05-03', 501, true);"
 
         job = client.query(query)
         job.result()
@@ -140,9 +168,7 @@ def ingesta_custom_pandas_dag():
     # Ejecutar procedimiento almacenado dwh_cero.generar_planchassaldostmp para generar la plancha tabla planchasaldostmp que es la planchaSaldosCero
     tarea_procedure = ejecutar_procedure(tarea_ingesta)
 
-    tarea_procedure_fl = ejecutar_procedure_fl(tarea_ingesta)
-
-    tarea_esquema >> tarea_ingesta >> tarea_procedure >> tarea_procedure_fl
+    tarea_esquema >> tarea_ingesta >> tarea_procedure
 
 
 dag_instancia = ingesta_custom_pandas_dag()

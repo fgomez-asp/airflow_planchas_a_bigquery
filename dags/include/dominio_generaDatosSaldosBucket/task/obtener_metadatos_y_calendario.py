@@ -10,7 +10,21 @@ from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 @task
 def obtener_metadatos_y_calendario(logical_date):
     """
-    Obtiene fechas, regiones y buckets.
+    ### Task: Obtener Metadatos y Calendario
+    Esta tarea centraliza la lógica de parámetros y cálculos temporales necesarios
+    para la segmentación de datos de saldos.
+
+    **Procesos principales:**
+    1. **Parámetros Dinámicos**: Utiliza `build_dag_parameters` para procesar variables complejas (tablas, parámetros y flags) desde una única Variable de Airflow.
+    2. **Cálculos de Ventana**:
+       - Semana ISO y rangos de lunes a domingo.
+       - Rango completo del mes actual (primer al último día).
+    3. **Enriquecimiento de Catálogos**:
+       - Consulta la tabla de `regiones` para obtener sucursales activas.
+       - Clasifica escalas de `buckets` según el responsable (ASESOR/GESTOR).
+
+    **Retorna:**
+    Un diccionario con la configuración completa (`conf`) para los DAGs secundarios.
     """
     fecha_ejecucion = logical_date.date()
 

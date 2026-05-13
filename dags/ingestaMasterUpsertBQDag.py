@@ -136,8 +136,8 @@ def orquestador_ingesta_upsert():
             filename=ruta_gcs_operador,
             export_format="json",
             use_server_side_cursor=True,
-            cursor_itersize=10000,  # Aumentado para mayor eficiencia en memoria RAM de la BD
-            approx_max_file_size_bytes=5_000_000,  # ~5MB por archivo. GCS maneja esto sin inmutarse.
+            cursor_itersize=20000,  # Aumentado para mayor eficiencia en memoria RAM de la BD
+            approx_max_file_size_bytes=10_000_000,  # ~5MB por archivo. GCS maneja esto sin inmutarse.
             retries=3,
             retry_delay=timedelta(minutes=2),
         )
